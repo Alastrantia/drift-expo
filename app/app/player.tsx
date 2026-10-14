@@ -6,7 +6,7 @@ import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Slider from '@react-native-community/slider';
-import { SceneArt } from '../src/components/SceneArt';
+import { ArtTile } from '../src/components/ArtTile';
 import { GlassIconButton, Icon, PressableScale } from '../src/components/ui';
 import { SCENES, sceneById } from '../src/lib/scenes';
 import { useDrift } from '../src/lib/store';
@@ -47,19 +47,20 @@ export default function Player() {
 
   return (
     <View style={[styles.root, { paddingBottom: insets.bottom + space(2) }]}>
-      <Animated.View key={scene.id} entering={FadeIn.duration(400)} exiting={FadeOut.duration(250)} style={{ height: artH, marginTop: space(3) }}>
-        <SceneArt kind={scene.art} width={width} height={artH} color={p.line} faintColor={p.lineFaint} animated={playing} strokeWidth={1.7} />
+      <Animated.View key={scene.id} entering={FadeIn.duration(500)} exiting={FadeOut.duration(300)} style={StyleSheet.absoluteFill}>
+        <ArtTile scene={scene} animated rounded={0} style={StyleSheet.absoluteFill} scrim={0.9} />
       </Animated.View>
+      <View style={{ height: artH }} />
 
       <View style={styles.meta}>
-        <Animated.Text key={scene.id + 't'} entering={FadeIn.duration(300)} style={[type.display, { color: semantic.label }]}>
+        <Animated.Text key={scene.id + 't'} entering={FadeIn.duration(300)} style={[type.display, { color: '#FFFFFF' }]}>
           {scene.name}
         </Animated.Text>
-        <Text style={[type.subhead, { color: semantic.secondaryLabel }]}>{scene.subtitle}</Text>
+        <Text style={[type.subhead, { color: 'rgba(255,255,255,0.75)' }]}>{scene.subtitle}</Text>
       </View>
 
       <View style={styles.timer}>
-        <View style={[styles.track, { backgroundColor: p.lineFaint }]}>
+        <View style={[styles.track, { backgroundColor: 'rgba(255,255,255,0.25)' }]}>
           <View style={[styles.fill, { width: `${Math.min(100, progress * 100)}%`, backgroundColor: p.accent }]} />
         </View>
         <View style={styles.timerLabels}>
@@ -87,7 +88,7 @@ export default function Player() {
 
       <View style={styles.volume}>
         <Icon name="speaker.fill" size={14} color={p.secondary} />
-        <Slider style={{ flex: 1 }} value={volume} onValueChange={setVolume} minimumTrackTintColor={p.label} accessibilityLabel="Volume" />
+        <Slider style={{ flex: 1 }} value={volume} onValueChange={setVolume} minimumTrackTintColor="#FFFFFF" maximumTrackTintColor="rgba(255,255,255,0.25)" accessibilityLabel="Volume" />
         <Icon name="speaker.wave.3.fill" size={16} color={p.secondary} />
       </View>
 
@@ -101,13 +102,13 @@ export default function Player() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: semantic.background },
+  root: { flex: 1, backgroundColor: '#000' },
   meta: { paddingHorizontal: space(3), gap: space(0.5) },
   timer: { paddingHorizontal: space(3), marginTop: space(3), gap: space(1) },
   track: { height: 4, borderRadius: 2, overflow: 'hidden' },
   fill: { height: 4, borderRadius: 2 },
   timerLabels: { flexDirection: 'row', justifyContent: 'space-between' },
-  num: { color: semantic.secondaryLabel, fontVariant: ['tabular-nums'] },
+  num: { color: 'rgba(255,255,255,0.7)', fontVariant: ['tabular-nums'] },
   transport: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space(3), marginTop: space(3) },
   bigPlay: { width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center' },
   volume: { flexDirection: 'row', alignItems: 'center', gap: space(1.5), paddingHorizontal: space(3), marginTop: space(3) },

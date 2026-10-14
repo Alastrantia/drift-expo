@@ -13,8 +13,20 @@ export default function RootLayout() {
 
   // Hold the splash until persisted state is known, so there's never a flash of the intro.
   useEffect(() => {
+    console.log('Drift: root layout, hydrated =', hydrated, 'onboarded =', onboarded);
     if (hydrated) SplashScreen.hideAsync();
-  }, [hydrated]);
+  }, [hydrated, onboarded]);
+
+  // Never hang on a blank screen if storage is slow or unavailable.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (!useDrift.getState().hydrated) {
+        console.warn('Drift: storage restore timed out, continuing with defaults');
+        useDrift.setState({ hydrated: true });
+      }
+    }, 2000);
+    return () => clearTimeout(id);
+  }, []);
 
   if (!hydrated) return null;
 

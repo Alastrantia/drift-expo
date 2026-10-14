@@ -101,7 +101,11 @@ export const useDrift = create<State>()(
       name: 'drift',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: ({ hydrated, playing, timerEndsAt, ...rest }) => rest,
-      onRehydrateStorage: () => () => useDrift.setState({ hydrated: true }),
+      onRehydrateStorage: () => (_state, error) => {
+        if (error) console.warn('Drift: restore failed', error);
+        console.log('Drift: state restored');
+        setTimeout(() => useDrift.setState({ hydrated: true }), 0);
+      },
     },
   ),
 );

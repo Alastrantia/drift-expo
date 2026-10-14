@@ -62,7 +62,7 @@ export function Breath({ cycles, onDone }: { cycles: number; onDone?: () => void
   return (
     <View style={styles.root}>
       <Animated.View style={[{ width: size, height: size }, ring]}>
-        <SceneArt kind="orbit" width={size} height={size} color={p.line} faintColor={p.lineFaint} animated strokeWidth={1.3} />
+        <SceneArt kind="orbit" width={size} height={size} color="rgba(255,255,255,0.9)" faintColor="rgba(255,255,255,0.35)" animated strokeWidth={1.3} />
       </Animated.View>
       <View style={styles.labelSlot}>
         <Animated.Text key={phase} entering={FadeIn.duration(500)} exiting={FadeOut.duration(300)} style={[type.title, styles.label]}>
@@ -76,5 +76,5 @@ export function Breath({ cycles, onDone }: { cycles: number; onDone?: () => void
 const styles = StyleSheet.create({
   root: { alignItems: 'center', gap: 24 },
   labelSlot: { height: 32, alignSelf: 'stretch', alignItems: 'center' },
-  label: { position: 'absolute', color: semantic.label, fontWeight: '500' },
+  label: { position: 'absolute', color: '#FFFFFF', fontWeight: '500' },
 });

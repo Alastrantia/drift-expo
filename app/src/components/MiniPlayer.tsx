@@ -23,7 +23,7 @@ export function MiniPlayer() {
 
   return (
     <Pressable style={styles.row} onPress={() => router.push('/player')} accessibilityLabel={`Open player, ${scene.name}`}>
-      <ArtTile scene={scene} rounded={radius.tile * 0.75} style={styles.art} strokeWidth={1} />
+      <ArtTile scene={scene} rounded={radius.tile * 0.75} style={styles.art} />
       <View style={{ flex: 1 }}>
         <Text style={[type.subhead, { fontWeight: '600', color: semantic.label }]} numberOfLines={1}>
           {scene.name}

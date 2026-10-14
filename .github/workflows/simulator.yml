@@ -47,13 +47,18 @@ jobs:
           for i in $(seq 1 120); do grep -qE "Bundled|iOS Bundled" ../metro.log && break; sleep 3; done
           tail -20 ../metro.log
           sleep 8
+          # Skip Expo Go's one-time developer-menu tour, then relaunch the project.
+          xcrun simctl spawn "$UDID" defaults write host.exp.Exponent EXDevMenuIsOnboardingFinished -bool YES
+          xcrun simctl terminate "$UDID" host.exp.Exponent || true
+          sleep 2
+          xcrun simctl openurl "$UDID" "exp://127.0.0.1:8081"
+          sleep 6
 
       - name: Screenshots
         run: |
-          set -x
           mkdir -p ../out
           shot() { xcrun simctl io "$UDID" screenshot "../out/$1.png"; }
-          go() { xcrun simctl openurl "$UDID" "exp://127.0.0.1:8081/--/$1"; sleep ${2:-4}; }
+          go() { xcrun simctl openurl "$UDID" "exp://127.0.0.1:8081/--/$1" || true; sleep ${2:-4}; }
           sleep 2; shot 00-welcome-breath
           sleep 14; shot 01-listen-dark
           go "listen/tide" 4; shot 02-detail
@@ -70,7 +75,7 @@ jobs:
 
       - name: Record flow
         run: |
-          go() { xcrun simctl openurl "$UDID" "exp://127.0.0.1:8081/--/$1"; sleep ${2:-4}; }
+          go() { xcrun simctl openurl "$UDID" "exp://127.0.0.1:8081/--/$1" || true; sleep ${2:-4}; }
           xcrun simctl io "$UDID" recordVideo --codec h264 --force ../out/flow.mp4 &
           REC=$!
           sleep 2

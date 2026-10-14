@@ -2,7 +2,9 @@ import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ArtTile } from '../src/components/ArtTile';
 import { Breath } from '../src/components/Breath';
+import { SCENES } from '../src/lib/scenes';
 import { useDrift } from '../src/lib/store';
 import { semantic, space, type } from '../src/lib/theme';
 
@@ -22,6 +24,7 @@ export default function Welcome() {
 
   return (
     <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom + space(2) }]}>
+      <ArtTile scene={SCENES[4]} animated rounded={0} style={StyleSheet.absoluteFill} />
       <View style={styles.center}>
         {stage === 'breath' ? (
           <Animated.View exiting={FadeOut.duration(500)}>
@@ -42,7 +45,7 @@ export default function Welcome() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: semantic.background },
+  root: { flex: 1, backgroundColor: '#000' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   skip: { alignSelf: 'center', minHeight: 44, justifyContent: 'center', paddingHorizontal: space(2) },
 });

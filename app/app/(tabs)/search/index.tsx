@@ -60,7 +60,7 @@ export default function Search() {
                 onPress={() => router.push(`/listen/${s.id}`)}
                 style={({ pressed }) => [styles.row, i > 0 && styles.separator, pressed && { backgroundColor: semantic.separator }]}
               >
-                <ArtTile scene={s} rounded={radius.tile} style={{ width: 52, height: 52 }} strokeWidth={1} />
+                <ArtTile scene={s} rounded={radius.tile} style={{ width: 52, height: 52 }} />
                 <View style={{ flex: 1 }}>
                   <Text style={[type.body, { color: semantic.label }]}>{s.name}</Text>
                   <Text style={[type.footnote, { color: semantic.secondaryLabel }]} numberOfLines={1}>
