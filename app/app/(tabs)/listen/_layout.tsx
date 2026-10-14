@@ -8,6 +8,10 @@ export default function TabStack() {
         headerTransparent: true,
         headerShadowVisible: false,
         headerLargeTitleShadowVisible: false,
+        contentStyle: { backgroundColor: '#000' },
+        headerTintColor: '#fff',
+        headerLargeTitleStyle: { color: '#fff' },
+        headerTitleStyle: { color: '#fff' },
       }}
     />
   );

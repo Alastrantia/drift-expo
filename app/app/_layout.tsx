@@ -1,4 +1,5 @@
-import { Stack } from 'expo-router';
+import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
+import { Appearance } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -6,6 +7,12 @@ import { AudioSync } from '../src/components/AudioSync';
 import { useDrift } from '../src/lib/store';
 
 SplashScreen.preventAutoHideAsync();
+
+// Drift is a night app: always dark, whatever the phone is set to.
+// (app.json's userInterfaceStyle is ignored by Expo Go, so force it at runtime.)
+Appearance.setColorScheme('dark');
+
+const theme = { ...DarkTheme, colors: { ...DarkTheme.colors, background: '#000000', card: '#000000' } };
 
 export default function RootLayout() {
   const hydrated = useDrift((s) => s.hydrated);
@@ -31,10 +38,10 @@ export default function RootLayout() {
   if (!hydrated) return null;
 
   return (
-    <>
-      <StatusBar style="auto" />
+    <ThemeProvider value={theme}>
+      <StatusBar style="light" />
       <AudioSync />
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#000' } }}>
         <Stack.Protected guard={onboarded}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="player" options={{ presentation: 'modal' }} />
@@ -52,6 +59,6 @@ export default function RootLayout() {
           <Stack.Screen name="welcome" options={{ animation: 'fade' }} />
         </Stack.Protected>
       </Stack>
-    </>
+    </ThemeProvider>
   );
 }

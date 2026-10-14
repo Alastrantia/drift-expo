@@ -1,4 +1,3 @@
-import { PlatformColor, useColorScheme } from 'react-native';
 
 /**
  * Design rules (locked):
@@ -10,20 +9,22 @@ import { PlatformColor, useColorScheme } from 'react-native';
 export const radius = { card: 24, tile: 12, pill: 999 } as const;
 export const space = (n: number) => n * 8;
 
+// Drift is dark-only, so these are the iOS dark-appearance system colours as fixed values
+// (never white, even if the phone is in light mode).
 export const semantic = {
-  label: PlatformColor('label'),
-  secondaryLabel: PlatformColor('secondaryLabel'),
-  tertiaryLabel: PlatformColor('tertiaryLabel'),
-  background: PlatformColor('systemBackground'),
-  groupedBackground: PlatformColor('systemGroupedBackground'),
-  card: PlatformColor('secondarySystemGroupedBackground'),
-  tile: PlatformColor('secondarySystemBackground'),
-  separator: PlatformColor('separator'),
+  label: '#FFFFFF',
+  secondaryLabel: 'rgba(235,235,245,0.6)',
+  tertiaryLabel: 'rgba(235,235,245,0.3)',
+  background: '#000000',
+  groupedBackground: '#000000',
+  card: '#1C1C1E',
+  tile: '#2C2C2E',
+  separator: 'rgba(84,84,88,0.6)',
 };
 
 /** Plain string colours, for SVG strokes and Reanimated (which cannot take PlatformColor). */
 export function usePalette() {
-  const dark = useColorScheme() !== 'light';
+  const dark = true;
   return {
     dark,
     accent: dark ? '#F2A65A' : '#B5651D',
