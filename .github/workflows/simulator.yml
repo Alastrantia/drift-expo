@@ -1,0 +1,102 @@
+name: Simulator check (Expo Go)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: sim-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator:
+    runs-on: macos-26
+    timeout-minutes: 50
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci --legacy-peer-deps
+
+      - name: Boot iPhone simulator
+        run: |
+          XC=$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1); sudo xcode-select -s "$XC/Contents/Developer"
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devs = [d for rt, ds in json.load(sys.stdin)["devices"].items() if "iOS-26" in rt for d in ds]
+          for name in ["iPhone 17 Pro", "iPhone 17", "iPhone 16 Pro"]:
+              for d in devs:
+                  if d["name"] == name: print(d["udid"]); sys.exit()
+          print(next(d["udid"] for d in devs if d["name"].startswith("iPhone")))')
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"; xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl ui "$UDID" appearance dark
+          xcrun simctl status_bar "$UDID" override --time "9:41" --batteryState charged --batteryLevel 100 --cellularBars 4 --wifiBars 3
+
+      - name: Start Metro + Expo Go
+        run: |
+          CI=1 npx expo start --ios --port 8081 > ../metro.log 2>&1 &
+          # Wait for the bundle to be served to the simulator.
+          for i in $(seq 1 120); do grep -qE "Bundled|iOS Bundled" ../metro.log && break; sleep 3; done
+          tail -20 ../metro.log
+          sleep 8
+
+      - name: Screenshots
+        run: |
+          set -x
+          mkdir -p ../out
+          shot() { xcrun simctl io "$UDID" screenshot "../out/$1.png"; }
+          go() { xcrun simctl openurl "$UDID" "exp://127.0.0.1:8081/--/$1"; sleep ${2:-4}; }
+          sleep 2; shot 00-welcome-breath
+          sleep 14; shot 01-listen-dark
+          go "listen/tide" 4; shot 02-detail
+          go "player?scene=tide&timer=30" 5; shot 03-player
+          go "timer" 3; shot 04-timer-sheet
+          go "mixer" 3; shot 05-mixer-sheet
+          go "sleep" 3; shot 06-sleep
+          go "search" 3; shot 07-search
+          go "breathe" 5; shot 08-breathe
+          xcrun simctl ui "$UDID" appearance light
+          go "listen" 4; shot 09-listen-light
+          go "player?scene=hearth" 5; shot 10-player-light
+          xcrun simctl ui "$UDID" appearance dark
+
+      - name: Record flow
+        run: |
+          go() { xcrun simctl openurl "$UDID" "exp://127.0.0.1:8081/--/$1"; sleep ${2:-4}; }
+          xcrun simctl io "$UDID" recordVideo --codec h264 --force ../out/flow.mp4 &
+          REC=$!
+          sleep 2
+          go "listen" 3
+          go "listen/storm" 4
+          go "player?scene=storm" 6
+          go "player?scene=highland" 6
+          go "mixer" 4
+          go "sleep" 4
+          go "search" 3
+          go "listen" 3
+          kill -INT $REC; wait $REC || true
+
+      - name: Metro log
+        if: always()
+        run: cp ../metro.log ../out/ || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulator-check
+          path: out/
+
+      - name: Shut down
+        if: always()
+        run: |
+          pkill -f "simctl io" || true
+          pkill -f "expo start" || true
+          xcrun simctl shutdown all || true

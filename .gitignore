@@ -1,0 +1,6 @@
+research/
+node_modules/
+.expo/
+dist/
+artifacts/
+*.log
